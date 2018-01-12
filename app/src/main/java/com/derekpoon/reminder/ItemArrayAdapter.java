@@ -2,6 +2,7 @@ package com.derekpoon.reminder;
 
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -44,21 +45,32 @@ public class ItemArrayAdapter extends RecyclerView.Adapter<ItemArrayAdapter.View
     @Override
     public void onBindViewHolder(final ViewHolder holder, final int listPosition) {
         ImageView profile = holder.profile;
+        ImageView party = holder.party;
         TextView item = holder.item;
         TextView dob = holder.dob;
         TextView daysLeft = holder.daysLeft;
+        TextView daysLeftText = holder.daysLeftText;
         TextView age = holder.age;
         profile.setImageResource(R.drawable.default_profile);
         item.setText(itemList.get(listPosition).getName());
         dob.setText(itemList.get(listPosition).getDob().toString());
-        daysLeft.setText(String.valueOf(itemList.get(listPosition).getDaysLeft()));
+        if (itemList.get(listPosition).getDaysLeft() == 0) {
+            daysLeft.setText("Today");
+            daysLeft.setTypeface(null, Typeface.BOLD);
+            daysLeft.setTextColor(Color.parseColor("#23DB23"));
+            daysLeftText.setVisibility(View.INVISIBLE);
+            party.setVisibility(View.VISIBLE);
+        } else {
+            daysLeft.setText(String.valueOf(itemList.get(listPosition).getDaysLeft()));
+            party.setVisibility(View.INVISIBLE);
+        }
         age.setText(String.valueOf(itemList.get(listPosition).getAge()));
     }
 
     // Static inner class to initialize the views of rows
     static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        public ImageView profile;
-        public TextView item, dob, daysLeft, age;
+        public ImageView profile, party;
+        public TextView item, dob, daysLeft, age, daysLeftText;
         public ViewHolder(View itemView) {
             super(itemView);
             itemView.setOnClickListener(this);
@@ -68,8 +80,10 @@ public class ItemArrayAdapter extends RecyclerView.Adapter<ItemArrayAdapter.View
             item.setTextColor(Color.parseColor("#57A5F4"));
             dob = (TextView) itemView.findViewById(R.id.row_dob);
             daysLeft = (TextView) itemView.findViewById(R.id.row_daysLeft);
+            daysLeftText = (TextView) itemView.findViewById(R.id.row_daysLeftTest);
             age = (TextView) itemView.findViewById(R.id.row_age);
             age.setTypeface(null, Typeface.BOLD);
+            party = (ImageView)itemView.findViewById(R.id.row_party);
         }
         @Override
         public void onClick(View view) {

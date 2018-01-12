@@ -5,6 +5,7 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.provider.CalendarContract;
@@ -25,6 +26,7 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 import java.io.File;
 import java.io.FileInputStream;
@@ -59,6 +61,11 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
     private String dayRemain;
     private int dayRemainInt = 0;
     private int age;
+    private boolean myBirthday = false;
+
+    public boolean isMyBirthday() {
+        return myBirthday;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -153,6 +160,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                     dayRemain = "0";
                     dayRemainInt = 0;
                     age = today.get(Calendar.YEAR) - birthday.get(Calendar.YEAR);
+                    myBirthday = true;
                 }
                 if (bdayDay < currDay) {
                     age = today.get(Calendar.YEAR) - birthday.get(Calendar.YEAR) + 1;

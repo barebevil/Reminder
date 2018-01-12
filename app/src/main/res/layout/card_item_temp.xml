@@ -82,6 +82,15 @@
                 android:textSize="36sp"
                 />
 
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/row_party"
+                android:layout_toLeftOf="@id/turns"
+                android:src="@drawable/confetti"
+                android:padding="8dp"
+                />
+
         </RelativeLayout>
 
     </android.support.v7.widget.CardView>

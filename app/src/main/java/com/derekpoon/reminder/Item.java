@@ -19,10 +19,11 @@ public class Item implements Serializable, Comparable<Item> {
     private String dob;
     private int daysLeft;
     private int age;
+    private String daysLeftText;
 
-    public Item(String n) {
-        name = n;
-    }
+//    public Item(String n) {
+//        name = n;
+//    }
 
     public Item(int profile, String name, String dob, int daysLeft, int age) {
         this.profile = profile;
@@ -30,6 +31,19 @@ public class Item implements Serializable, Comparable<Item> {
         this.dob = dob;
         this.daysLeft = daysLeft;
         this.age = age;
+    }
+
+    public Item(String daysLeftText) {
+        this.daysLeftText = daysLeftText;
+
+    }
+
+    public String getDaysLeftText() {
+        return daysLeftText;
+    }
+
+    public void setDaysLeftText(String daysLeftText) {
+        this.daysLeftText = daysLeftText;
     }
 
     @Override
