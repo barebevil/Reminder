@@ -7,6 +7,7 @@ import android.Manifest;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
+import android.provider.CalendarContract;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.content.ContextCompat;
@@ -140,6 +141,8 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
             int currMonth = today.get(Calendar.MONTH);
             int bdayDay = birthday.get(Calendar.DAY_OF_MONTH);
             int currDay = today.get(Calendar.DAY_OF_MONTH);
+            int bdayYear = birthday.get(Calendar.YEAR);
+            int currYear = today.get(Calendar.YEAR);
 
             System.out.println(today.getTime());
             System.out.println("");
@@ -148,6 +151,8 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
             if (bdayMonth == currMonth) {
                 if (bdayDay == currDay) {
                     dayRemain = "0";
+                    dayRemainInt = 0;
+                    age = today.get(Calendar.YEAR) - birthday.get(Calendar.YEAR);
                 }
                 if (bdayDay < currDay) {
                     age = today.get(Calendar.YEAR) - birthday.get(Calendar.YEAR) + 1;
@@ -164,7 +169,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                     long diffDays = (diff / (24 * 60 * 60 * 1000));
 
                     dayRemain = String.valueOf(diffDays);
-                    dayRemainInt = Integer.parseInt(dayRemain);
+                    dayRemainInt = Integer.parseInt(dayRemain) + 1;
 
                     System.out.print("Next birthday is in " + diffDays + " days");
                 }
@@ -183,7 +188,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                     long diffDays = (diff / (24 * 60 * 60 * 1000));
 
                     dayRemain = String.valueOf(diffDays);
-                    dayRemainInt = Integer.parseInt(dayRemain);
+                    dayRemainInt = Integer.parseInt(dayRemain) + 1;
 
                     System.out.print("Next birthday is in " + diffDays + " days");
                 }
@@ -222,11 +227,12 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                 long diffDays = diff / (24 * 60 * 60 * 1000);
 
                 dayRemain = String.valueOf(diffDays);
-                dayRemainInt = Integer.parseInt(dayRemain);
+                dayRemainInt = Integer.parseInt(dayRemain) + 1;
 
                 System.out.print("Next birthday is in " + diffDays + " days");
             }
-            itemList.get(i).setDaysLeft(dayRemainInt + 1);
+            itemList.get(i).setDaysLeft(dayRemainInt);
+            itemList.get(i).setAge(age);
         }
     }
 
@@ -390,6 +396,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         if (bdayMonth == currMonth) {
             if (bdayDay == currDay) {
                 dayRemain = "0";
+                age = today.get(Calendar.YEAR) - birthday.get(Calendar.YEAR);
             }
             if (bdayDay < currDay) {
                 age = today.get(Calendar.YEAR) - birthday.get(Calendar.YEAR) + 1;
