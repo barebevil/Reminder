@@ -81,10 +81,10 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
 
         checkStoragePermission();
 
-        btnCreateNote = (Button)findViewById(R.id.create_note);
-        btnCreateNote.setOnClickListener(btnHandler);
-        btnDelete = (Button)findViewById(R.id.deleteData);
-        btnDelete.setOnClickListener(btnHandler);
+//        btnCreateNote = (Button)findViewById(R.id.create_note);
+//        btnCreateNote.setOnClickListener(btnHandler);
+//        btnDelete = (Button)findViewById(R.id.deleteData);
+//        btnDelete.setOnClickListener(btnHandler);
 
         //initialize the arraylist of items
         itemList = new ArrayList<Item>();
@@ -133,6 +133,20 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         return true;
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_add:
+                //Code to run when the Add button is clicked
+                addName();
+                return true;
+            case R.id.action_settings:
+                displayDeleteDataAlert();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
 
     class CompareDaysLeft implements Comparator<Item> {
         public int compare(Item day1, Item day2) {
@@ -331,19 +345,19 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         writeToFile();
     }
 
-    View.OnClickListener btnHandler = new View.OnClickListener() {
-        public void onClick(View v) {
-
-            switch (v.getId()) {
-                case R.id.create_note:
-                    addName();
-                    break;
-                case R.id.deleteData:
-                    displayDeleteDataAlert();
-                    break;
-            }
-        }
-    };
+//    View.OnClickListener btnHandler = new View.OnClickListener() {
+//        public void onClick(View v) {
+//
+//            switch (v.getId()) {
+//                case R.id.create_note:
+//                    addName();
+//                    break;
+//                case R.id.deleteData:
+//                    displayDeleteDataAlert();
+//                    break;
+//            }
+//        }
+//    };
 
     public void editExistingEntry() {
 
