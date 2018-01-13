@@ -96,9 +96,50 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         rv.setItemAnimator(new DefaultItemAnimator());
         rv.setAdapter(itemArrayAdapter);
 
-        SwipeController swipeController = new SwipeController();
-        ItemTouchHelper itemTouchhelper = new ItemTouchHelper(swipeController);
-        itemTouchhelper.attachToRecyclerView(rv);
+//        SwipeController swipeController = new SwipeController();
+//        ItemTouchHelper itemTouchhelper = new ItemTouchHelper(swipeController);
+//        itemTouchhelper.attachToRecyclerView(rv);
+
+        ItemTouchHelper.SimpleCallback simpleCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
+
+            @Override
+            public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+                return false;
+            }
+
+            @Override
+            public void onSwiped(final RecyclerView.ViewHolder viewHolder, int direction) {
+                final int position = viewHolder.getAdapterPosition(); //get position which is swipe
+
+                if (direction == ItemTouchHelper.LEFT) {    //if swipe left
+
+                    AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this); //alert for confirm to delete
+                    builder.setMessage("Delete this birthday?");    //set message
+
+                    builder.setPositiveButton("YES", new DialogInterface.OnClickListener() { //when click on DELETE
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            itemArrayAdapter.notifyItemRemoved(position);    //item removed from recylcerview
+//                            sqldatabase.execSQL("delete from " + TABLE_NAME + " where _id='" + (position + 1) + "'"); //query for delete
+                            itemList.remove(position);  //then remove item
+                            writeToFile();
+                            loadFromFile();
+
+                            return;
+                        }
+                    }).setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {  //not removing items if cancel is done
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            itemArrayAdapter.notifyItemRemoved(position + 1);    //notifies the RecyclerView Adapter that data in adapter has been removed at a particular position.
+                            itemArrayAdapter.notifyItemRangeChanged(position, itemArrayAdapter.getItemCount());   //notifies the RecyclerView Adapter that positions of element in adapter has been changed from position(removed element index to end of list), please update it.
+                            return;
+                        }
+                    }).show();  //show alert dialog
+                }
+            }
+        };
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleCallback);
+        itemTouchHelper.attachToRecyclerView(rv);
 
         myInternalFile = new File(context.getFilesDir(), infilename);
         if (!myInternalFile.exists()) {
