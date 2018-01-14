@@ -418,21 +418,18 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         // set dialog message
         alertDialogBuilder
                 .setCancelable(false)
-                .setPositiveButton("Save",
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog,int id) {
-                                // get user input and set it to result
-                                // edit text
-//                                    result.setText(userInput.getText());
-                                showDatePickerDialog(promptsView);
-                            }
-                        })
-                .setNegativeButton("Cancel",
+                .setPositiveButton("Close",
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog,int id) {
                                 dialog.cancel();
                             }
                         });
+//                .setNegativeButton("Cancel",
+//                        new DialogInterface.OnClickListener() {
+//                            public void onClick(DialogInterface dialog,int id) {
+//                                dialog.cancel();
+//                            }
+//                        });
 
         // create alert dialog
         AlertDialog alertDialog = alertDialogBuilder.create();
