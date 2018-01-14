@@ -66,11 +66,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
     private String dayRemain;
     private int dayRemainInt = 0;
     private int age;
-    private boolean myBirthday = false;
-
-    public boolean isMyBirthday() {
-        return myBirthday;
-    }
+    private TextView mName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,9 +92,12 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         rv.setItemAnimator(new DefaultItemAnimator());
         rv.setAdapter(itemArrayAdapter);
 
-//        SwipeController swipeController = new SwipeController();
-//        ItemTouchHelper itemTouchhelper = new ItemTouchHelper(swipeController);
-//        itemTouchhelper.attachToRecyclerView(rv);
+        itemArrayAdapter.setListener(new ItemArrayAdapter.Listener() {
+            public void onClick(int position) {
+                Toast.makeText(MainActivity.this,"You clicked " + position, Toast.LENGTH_SHORT).show();
+                editExistingEntry(position);
+            }
+        });
 
         ItemTouchHelper.SimpleCallback simpleCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
 
@@ -189,6 +188,10 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         }
     }
 
+    public void onClick(View view, int position) {
+        Toast.makeText(MainActivity.this,"Load successful", Toast.LENGTH_SHORT).show();
+    }
+
     class CompareDaysLeft implements Comparator<Item> {
         public int compare(Item day1, Item day2) {
 
@@ -231,7 +234,6 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                     dayRemain = "0";
                     dayRemainInt = 0;
                     age = today.get(Calendar.YEAR) - birthday.get(Calendar.YEAR);
-                    myBirthday = true;
                 }
                 if (bdayDay < currDay) {
                     age = today.get(Calendar.YEAR) - birthday.get(Calendar.YEAR) + 1;
@@ -400,7 +402,47 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
 //        }
 //    };
 
-    public void editExistingEntry() {
+    public void editExistingEntry(int position) {
+        LayoutInflater li = LayoutInflater.from(context);
+        final View promptsView = li.inflate(R.layout.prompts_display_birthday, null);
+
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
+                context);
+
+        // set prompts.xml to alertdialog builder
+        alertDialogBuilder.setView(promptsView);
+
+        mName = (TextView) promptsView.findViewById(R.id.user_name);
+        mName.setText("Name: " + itemList.get(position).getName());
+
+        // set dialog message
+        alertDialogBuilder
+                .setCancelable(false)
+                .setPositiveButton("Save",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog,int id) {
+                                // get user input and set it to result
+                                // edit text
+//                                    result.setText(userInput.getText());
+                                showDatePickerDialog(promptsView);
+                            }
+                        })
+                .setNegativeButton("Cancel",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog,int id) {
+                                dialog.cancel();
+                            }
+                        });
+
+        // create alert dialog
+        AlertDialog alertDialog = alertDialogBuilder.create();
+
+        //show keyboard
+        alertDialog.getWindow().setSoftInputMode(
+                WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+
+        // show it
+        alertDialog.show();
 
     }
 

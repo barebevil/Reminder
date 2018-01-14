@@ -1,8 +1,10 @@
 package com.derekpoon.reminder;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -21,6 +23,21 @@ public class ItemArrayAdapter extends RecyclerView.Adapter<ItemArrayAdapter.View
     //All methods in this adapter are required for a bare minimum recyclerview adapter
     private int listItemLayout;
     private ArrayList<Item> itemList;
+
+    private Listener listener;
+
+    /*
+    set up and interface for listener
+     */
+
+    public static interface Listener {
+        public void onClick(int position);
+    }
+
+    public void setListener(Listener listener) {
+        this.listener = listener;
+    }
+
     // Constructor of the class
     public ItemArrayAdapter(int layoutId, ArrayList<Item> itemList) {
         listItemLayout = layoutId;
@@ -54,6 +71,16 @@ public class ItemArrayAdapter extends RecyclerView.Adapter<ItemArrayAdapter.View
         profile.setImageResource(R.drawable.default_profile);
         item.setText(itemList.get(listPosition).getName());
         dob.setText(itemList.get(listPosition).getDob().toString());
+
+        //bind the click listener to the viewholder
+        holder.cardView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (listener != null) { listener.onClick(listPosition);
+                }
+            }
+        });
+
         if (itemList.get(listPosition).getDaysLeft() == 0) {
             daysLeft.setText("Today");
             daysLeft.setTypeface(null, Typeface.BOLD);
@@ -69,11 +96,17 @@ public class ItemArrayAdapter extends RecyclerView.Adapter<ItemArrayAdapter.View
 
     // Static inner class to initialize the views of rows
     static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+
         public ImageView profile, party;
         public TextView item, dob, daysLeft, age, daysLeftText;
+        private CardView cardView;
+
+
         public ViewHolder(View itemView) {
             super(itemView);
             itemView.setOnClickListener(this);
+
+            cardView = (CardView)itemView.findViewById(R.id.card_view);
             profile = (ImageView) itemView.findViewById(R.id.row_profile);
             item = (TextView) itemView.findViewById(R.id.row_item);
             item.setTypeface(null, Typeface.BOLD);
@@ -85,6 +118,7 @@ public class ItemArrayAdapter extends RecyclerView.Adapter<ItemArrayAdapter.View
             age.setTypeface(null, Typeface.BOLD);
             party = (ImageView)itemView.findViewById(R.id.row_party);
         }
+
         @Override
         public void onClick(View view) {
             Log.d("onclick", "onClick " + getLayoutPosition() + " " + item.getText());

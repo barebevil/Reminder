@@ -7,7 +7,7 @@
     <android.support.v7.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/cv"
+        android:id="@+id/card_view"
         >
 
         <RelativeLayout
@@ -17,6 +17,8 @@
             >
 
             <ImageView
+                android:maxWidth="48dp"
+                android:maxHeight="48dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/row_profile"
@@ -33,7 +35,7 @@
                 android:layout_toRightOf="@+id/row_profile"
                 android:layout_alignParentTop="true"
                 android:text="Santa claus"
-                android:textSize="20sp"
+                android:textSize="16sp"
                 />
 
             <TextView
@@ -69,7 +71,7 @@
                 android:id="@+id/turns"
                 android:layout_alignParentRight="true"
                 android:text="Turns"
-                android:textSize="20sp"
+                android:textSize="16sp"
                 />
 
             <TextView
@@ -79,7 +81,7 @@
                 android:layout_below="@id/turns"
                 android:layout_alignLeft="@id/turns"
                 android:text="45"
-                android:textSize="36sp"
+                android:textSize="32sp"
                 />
 
             <ImageView
