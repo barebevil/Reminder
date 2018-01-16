@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.provider.CalendarContract;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.DialogFragment;
@@ -33,6 +34,9 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import org.w3c.dom.Text;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -42,6 +46,7 @@ import java.io.ObjectOutputStream;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Year;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -51,8 +56,7 @@ import java.util.GregorianCalendar;
 
 public class MainActivity extends AppCompatActivity implements DatePickerDialog.OnDateSetListener {
 
-    private Button btnCreateNote;
-    private Button btnDelete;
+    private TextView introText;
     private static final int PERMISSION_REQUEST_STORAGE = 0;
     private Context context = this;
     private EditText userInput;
@@ -62,11 +66,9 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
     private ArrayList<Item> itemArray2;
     private String infilename = "internalfile";
     private File myInternalFile;
-    private String dobVal;
-    private String dayRemain;
-    private int dayRemainInt = 0;
-    private int age;
-    private TextView mName;
+    private String dobVal, dayRemain;
+    private int dayRemainInt = 0, age, listPos = 0;
+    private TextView mName, mDob, mAge, mZodiac;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,11 +78,6 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         checkStoragePermission();
-
-//        btnCreateNote = (Button)findViewById(R.id.create_note);
-//        btnCreateNote.setOnClickListener(btnHandler);
-//        btnDelete = (Button)findViewById(R.id.deleteData);
-//        btnDelete.setOnClickListener(btnHandler);
 
         //initialize the arraylist of items
         itemList = new ArrayList<Item>();
@@ -95,7 +92,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         itemArrayAdapter.setListener(new ItemArrayAdapter.Listener() {
             public void onClick(int position) {
                 Toast.makeText(MainActivity.this,"You clicked " + position, Toast.LENGTH_SHORT).show();
-                editExistingEntry(position);
+                displayEntry(position);
             }
         });
 
@@ -161,6 +158,14 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
             Collections.sort(itemList, compdaysremain);
             itemArrayAdapter.notifyDataSetChanged();
         }
+
+        introText = (TextView)findViewById(R.id.intro_text);
+        introText.setTextColor(Color.parseColor("#FFFFFF"));
+        if (itemList.size() == 0) {
+            introText.setVisibility(View.VISIBLE);
+        } else {
+            introText.setVisibility(View.INVISIBLE);
+        }
     }
 
     // Menu icons are inflated just as they were with actionbar
@@ -186,10 +191,6 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
             default:
                 return super.onOptionsItemSelected(item);
         }
-    }
-
-    public void onClick(View view, int position) {
-        Toast.makeText(MainActivity.this,"Load successful", Toast.LENGTH_SHORT).show();
     }
 
     class CompareDaysLeft implements Comparator<Item> {
@@ -222,8 +223,6 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
             int currMonth = today.get(Calendar.MONTH);
             int bdayDay = birthday.get(Calendar.DAY_OF_MONTH);
             int currDay = today.get(Calendar.DAY_OF_MONTH);
-            int bdayYear = birthday.get(Calendar.YEAR);
-            int currYear = today.get(Calendar.YEAR);
 
             System.out.println(today.getTime());
             System.out.println("");
@@ -385,26 +384,15 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
     public void deleteData() {
         itemList.clear();
         itemArrayAdapter.notifyDataSetChanged();
+        introText.setVisibility(View.VISIBLE);
         writeToFile();
     }
 
-//    View.OnClickListener btnHandler = new View.OnClickListener() {
-//        public void onClick(View v) {
-//
-//            switch (v.getId()) {
-//                case R.id.create_note:
-//                    addName();
-//                    break;
-//                case R.id.deleteData:
-//                    displayDeleteDataAlert();
-//                    break;
-//            }
-//        }
-//    };
-
-    public void editExistingEntry(int position) {
+    public void displayEntry(int position) {
         LayoutInflater li = LayoutInflater.from(context);
         final View promptsView = li.inflate(R.layout.prompts_display_birthday, null);
+
+        listPos = position;
 
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
                 context);
@@ -413,7 +401,12 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         alertDialogBuilder.setView(promptsView);
 
         mName = (TextView) promptsView.findViewById(R.id.user_name);
-        mName.setText("Name: " + itemList.get(position).getName());
+        mName.setText(itemList.get(position).getName());
+        mName.setTextColor(Color.parseColor("#57A5F4"));
+        mDob = (TextView) promptsView.findViewById(R.id.date_of_birth);
+        mDob.setText(itemList.get(position).getDob());
+        mAge = (TextView) promptsView.findViewById(R.id.age);
+        mAge.setText(String.valueOf(itemList.get(position).getAge() - 1));
 
         // set dialog message
         alertDialogBuilder
@@ -423,13 +416,13 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                             public void onClick(DialogInterface dialog,int id) {
                                 dialog.cancel();
                             }
+                        })
+                .setNegativeButton("Edit entry",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog,int id) {
+                                editChangeName();
+                            }
                         });
-//                .setNegativeButton("Cancel",
-//                        new DialogInterface.OnClickListener() {
-//                            public void onClick(DialogInterface dialog,int id) {
-//                                dialog.cancel();
-//                            }
-//                        });
 
         // create alert dialog
         AlertDialog alertDialog = alertDialogBuilder.create();
@@ -441,6 +434,49 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         // show it
         alertDialog.show();
 
+    }
+
+    public void editChangeName() {
+        // get prompts.xml view
+        LayoutInflater li = LayoutInflater.from(context);
+        final View promptsView = li.inflate(R.layout.prompts_edit_name, null);
+
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
+                context);
+
+        // set prompts.xml to alertdialog builder
+        alertDialogBuilder.setView(promptsView);
+
+        userInput = (EditText) promptsView
+                .findViewById(R.id.editTextName);
+        userInput.setText(itemList.get(listPos).getName());
+
+        // set dialog message
+        alertDialogBuilder
+                .setCancelable(false)
+                .setPositiveButton("Save",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog,int id) {
+                                //get the D.O.B and use those values
+                                showDatePickerDialog(promptsView);
+                            }
+                        })
+                .setNegativeButton("Cancel",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog,int id) {
+                                dialog.cancel();
+                            }
+                        });
+
+        // create alert dialog
+        AlertDialog alertDialog = alertDialogBuilder.create();
+
+        //show keyboard
+        alertDialog.getWindow().setSoftInputMode(
+                WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+
+        // show it
+        alertDialog.show();
     }
 
     public void addName() {
@@ -486,7 +522,6 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         // show it
         alertDialog.show();
     }
-
 
     public void addtoArray() {
         Calendar today = Calendar.getInstance();
@@ -599,6 +634,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         CompareDaysLeft compdaysremain = new CompareDaysLeft();
         Collections.sort(itemList, compdaysremain);
         itemArrayAdapter.notifyDataSetChanged();
+        introText.setVisibility(View.INVISIBLE);
     }
 
     public void writeToFile() {
@@ -647,11 +683,11 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                 context);
 
         // set title
-        alertDialogBuilder.setTitle("Erase data?");
+        alertDialogBuilder.setTitle("Delete all birthdays?");
 
         // set dialog message
         alertDialogBuilder
-                .setMessage("Selecting yes, will erase data stored!")
+                .setMessage("Selecting yes, will delete all birthdays!")
                 .setPositiveButton("Yes",new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog,int id) {
                         // if this button is clicked, close

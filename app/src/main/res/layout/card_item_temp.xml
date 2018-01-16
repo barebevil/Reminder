@@ -88,9 +88,13 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/row_party"
-                android:layout_toLeftOf="@id/turns"
-                android:src="@drawable/confetti"
-                android:padding="8dp"
+                android:adjustViewBounds="true"
+                android:maxWidth="32dp"
+                android:maxHeight="32dp"
+                android:scaleType="fitCenter"
+                android:layout_below="@id/row_daysLeft"
+                android:layout_alignLeft="@id/row_daysLeft"
+                android:src="@drawable/icon_birthday"
                 />
 
         </RelativeLayout>
