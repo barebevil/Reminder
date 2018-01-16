@@ -3,4 +3,5 @@
     <string name="delete">DELETE</string>
     <string name="add_new">Add</string>
     <string name="action_settings">Delete</string>
+    <string name="date_picker_title">Date of birth:</string>
 </resources>

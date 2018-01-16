@@ -12,6 +12,7 @@ import android.graphics.Color;
 import android.provider.CalendarContract;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AlertDialog;
@@ -35,8 +36,6 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.w3c.dom.Text;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -54,7 +53,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
-public class MainActivity extends AppCompatActivity implements DatePickerDialog.OnDateSetListener {
+public class MainActivity extends AppCompatActivity {
 
     private TextView introText;
     private static final int PERMISSION_REQUEST_STORAGE = 0;
@@ -69,6 +68,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
     private String dobVal, dayRemain;
     private int dayRemainInt = 0, age, listPos = 0;
     private TextView mName, mDob, mAge, mZodiac;
+    private static final String DIALOG_DATE = "DialogDate";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -420,7 +420,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                 .setNegativeButton("Edit entry",
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog,int id) {
-                                editChangeName();
+                                editChangeName(listPos);
                             }
                         });
 
@@ -436,7 +436,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
 
     }
 
-    public void editChangeName() {
+    public void editChangeName(final int position) {
         // get prompts.xml view
         LayoutInflater li = LayoutInflater.from(context);
         final View promptsView = li.inflate(R.layout.prompts_edit_name, null);
@@ -457,8 +457,20 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                 .setPositiveButton("Save",
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog,int id) {
-                                //get the D.O.B and use those values
-                                showDatePickerDialog(promptsView);
+
+                                Date date = null;
+                                SimpleDateFormat sdf = new SimpleDateFormat("dd MMM yyyy");
+
+                                try {
+                                    date = sdf.parse(itemList.get(listPos).getDob());
+                                } catch (ParseException e) {
+                                    e.printStackTrace();
+                                }
+
+                                FragmentManager manager = getSupportFragmentManager();
+                                DatePickerFragment dialogdate = DatePickerFragment
+                                        .newInstance(date);
+                                dialogdate.show(manager, DIALOG_DATE);
                             }
                         })
                 .setNegativeButton("Cancel",
@@ -499,10 +511,10 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                 .setPositiveButton("Save",
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog,int id) {
-                                // get user input and set it to result
-                                // edit text
-//                                    result.setText(userInput.getText());
-                                showDatePickerDialog(promptsView);
+                                FragmentManager manager = getSupportFragmentManager();
+                                DatePickerFragment dialogdate = DatePickerFragment
+                                        .newInstance(Calendar.getInstance().getTime());
+                                dialogdate.show(manager, DIALOG_DATE);
                             }
                         })
                 .setNegativeButton("Cancel",
@@ -710,66 +722,67 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         // show it
         alertDialog.show();
     }
-    public void showDatePickerDialog(View v) {
-        DialogFragment newFragment = new DatePickerFragment();
-        newFragment.show(getSupportFragmentManager(), "datePicker");
-    }
 
-    /**
-     * This callback method, call DatePickerFragment class,
-     * DatePickerFragment class returns calendar view.
-     * @param view
-     */
-    public void datePicker(View view){
-
-        DatePickerFragment fragment = new DatePickerFragment();
-        //fragment.show(getSupportFragmentManager());
-    }
-
-    /**
-     * To set date on TextView
-     * @param calendar
-     */
-    private void setDate(final Calendar calendar) {
-        final DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.MEDIUM);
-
-        dobVal = String.valueOf(dateFormat.format(calendar.getTime()));
-
-        addtoArray();
-        writeToFile();
-        loadFromFile();
-    }
-
-    /**
-     * To receive a callback when the user sets the date.
-     * @param view
-     * @param year
-     * @param month
-     * @param day
-     */
-    @Override
-    public void onDateSet(DatePicker view, int year, int month, int day) {
-        Calendar cal = new GregorianCalendar(year, month, day);
-        setDate(cal);
-    }
-
-    /**
-     * Create a DatePickerFragment class that extends DialogFragment.
-     * Define the onCreateDialog() method to return an instance of DatePickerDialog
-     */
-    public static class DatePickerFragment extends DialogFragment {
-
-        @Override
-        public Dialog onCreateDialog(Bundle savedInstanceState) {
-            final Calendar c = Calendar.getInstance();
-            int year = c.get(Calendar.YEAR);
-            int month = c.get(Calendar.MONTH);
-            int day = c.get(Calendar.DAY_OF_MONTH);
-
-
-            return new DatePickerDialog(getActivity(),
-                    (DatePickerDialog.OnDateSetListener)
-                            getActivity(), year, month, day);
-        }
-    }
+//    public void showDatePickerDialog(View v) {
+//        DialogFragment newFragment = new DatePickerFragment();
+//        newFragment.show(getSupportFragmentManager(), "datePicker");
+//    }
+//
+//    /**
+//     * This callback method, call DatePickerFragment class,
+//     * DatePickerFragment class returns calendar view.
+//     * @param view
+//     */
+//    public void datePicker(View view){
+//
+//        DatePickerFragment fragment = new DatePickerFragment();
+//        //fragment.show(getSupportFragmentManager());
+//    }
+//
+//    /**
+//     * To set date on TextView
+//     * @param calendar
+//     */
+//    private void setDate(final Calendar calendar) {
+//        final DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.MEDIUM);
+//
+//        dobVal = String.valueOf(dateFormat.format(calendar.getTime()));
+//
+//        addtoArray();
+//        writeToFile();
+//        loadFromFile();
+//    }
+//
+//    /**
+//     * To receive a callback when the user sets the date.
+//     * @param view
+//     * @param year
+//     * @param month
+//     * @param day
+//     */
+//    @Override
+//    public void onDateSet(DatePicker view, int year, int month, int day) {
+//        Calendar cal = new GregorianCalendar(year, month, day);
+//        setDate(cal);
+//    }
+//
+//    /**
+//     * Create a DatePickerFragment class that extends DialogFragment.
+//     * Define the onCreateDialog() method to return an instance of DatePickerDialog
+//     */
+//    public static class DatePickerFragment extends DialogFragment {
+//
+//        @Override
+//        public Dialog onCreateDialog(Bundle savedInstanceState) {
+//            final Calendar c = Calendar.getInstance();
+//            int year = c.get(Calendar.YEAR);
+//            int month = c.get(Calendar.MONTH);
+//            int day = c.get(Calendar.DAY_OF_MONTH);
+//
+//
+//            return new DatePickerDialog(getActivity(),
+//                    (DatePickerDialog.OnDateSetListener)
+//                            getActivity(), year, month, day);
+//        }
+//    }
 }
