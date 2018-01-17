@@ -54,7 +54,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
-public class MainActivity extends AppCompatActivity implements DatePickerDialog.OnDateSetListener {
+public class MainActivity extends AppCompatActivity implements DatePickerFragment.OnCompleteListener {
 
     private TextView introText;
     private static final int PERMISSION_REQUEST_STORAGE = 0;
@@ -66,9 +66,23 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
     private ArrayList<Item> itemArray2;
     private String infilename = "internalfile";
     private File myInternalFile;
-    private String dobVal, dayRemain;
+    private String dobVal, dayRemain, mZodiacSign;
     private int dayRemainInt = 0, age, listPos = 0;
     private TextView mName, mDob, mAge, mZodiac;
+    private ArrayList<String> mZodiacList;
+
+    public void onComplete(String selectedDate) {
+        // After the dialog fragment completes, it calls this callback.
+        // use the string here
+
+        //update original DOB value
+        dobVal = selectedDate;
+
+        addtoArray();
+        writeToFile();
+        loadFromFile();
+    }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,6 +96,20 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         //initialize the arraylist of items
         itemList = new ArrayList<Item>();
         itemArray2 = new ArrayList<Item>();
+        mZodiacList = new ArrayList<String>();
+
+        mZodiacList.add("Aquarius");
+        mZodiacList.add("Pisces");
+        mZodiacList.add("Aries");
+        mZodiacList.add("Taurus");
+        mZodiacList.add("Gemini");
+        mZodiacList.add("Cancer");
+        mZodiacList.add("Leo");
+        mZodiacList.add("Virgo");
+        mZodiacList.add("Libra");
+        mZodiacList.add("Scorpio");
+        mZodiacList.add("Sagittarius");
+        mZodiacList.add("Capricorn");
 
         itemArrayAdapter = new ItemArrayAdapter(R.layout.card_item_temp, itemList);
         rv = (RecyclerView)findViewById(R.id.recycler_view);
@@ -191,6 +219,77 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    public void checkStarSign() {
+
+        Calendar today = Calendar.getInstance();
+        SimpleDateFormat sdf = new SimpleDateFormat("dd MMM yyyy");
+        Date date = null;
+        Calendar birthday = Calendar.getInstance();
+
+        try {
+            date = sdf.parse(itemList.get(listPos).getDob());
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        birthday.setTime(date);
+
+        int month = birthday.get(Calendar.MONTH);
+        int day = birthday.get(Calendar.DAY_OF_MONTH);
+
+        switch (month) {
+            case 1:
+                if (day < 20);
+                mZodiacSign = mZodiacList.get(0);
+                break;
+            case 2:
+                if (day < 18);
+                mZodiacSign = mZodiacList.get(1);
+                break;
+            case 3:
+                if (day < 21);
+                mZodiacSign = mZodiacList.get(2);
+                break;
+            case 4:
+                if (day < 20);
+                mZodiacSign = mZodiacList.get(3);
+                break;
+            case 5:
+                if (day < 21);
+                mZodiacSign = mZodiacList.get(4);
+                break;
+            case 6:
+                if (day < 21);
+                mZodiacSign = mZodiacList.get(5);
+                break;
+            case 7:
+                if (day < 23);
+                mZodiacSign = mZodiacList.get(6);
+                break;
+            case 8:
+                if (day < 23);
+                mZodiacSign = mZodiacList.get(7);
+                break;
+            case 9:
+                if (day < 23);
+                mZodiacSign = mZodiacList.get(8);
+                break;
+            case 10:
+                if (day < 23);
+                mZodiacSign = mZodiacList.get(9);
+                break;
+            case 11:
+                if (day < 22);
+                mZodiacSign = mZodiacList.get(10);
+                break;
+            case 12:
+                if (day < 22);
+                mZodiacSign = mZodiacList.get(11);
+                break;
+        }
+
     }
 
     class CompareDaysLeft implements Comparator<Item> {
@@ -389,10 +488,13 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
     }
 
     public void displayEntry(int position) {
+
         LayoutInflater li = LayoutInflater.from(context);
         final View promptsView = li.inflate(R.layout.prompts_display_birthday, null);
 
         listPos = position;
+
+        checkStarSign();
 
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
                 context);
@@ -407,6 +509,8 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         mDob.setText(itemList.get(position).getDob());
         mAge = (TextView) promptsView.findViewById(R.id.age);
         mAge.setText(String.valueOf(itemList.get(position).getAge() - 1));
+        mZodiac = (TextView) promptsView.findViewById(R.id.zodiac_sign);
+        mZodiac.setText(mZodiacSign);
 
         // set dialog message
         alertDialogBuilder
@@ -457,10 +561,11 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                 .setPositiveButton("Save",
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog,int id) {
-                                //get the D.O.B and use those values
-                                DatePicker datePicker = (DatePicker) findViewById(R.id.datepicker);
-                                datePicker.updateDate(2000, 5, 22);
-                                showDatePickerDialog(promptsView);
+                                android.app.DialogFragment picker = new DatePickerFragment();
+                                Bundle bundle = new Bundle();
+                                bundle.putString("DOB", itemList.get(listPos).getDob());
+                                picker.setArguments(bundle);
+                                picker.show((MainActivity.this).getFragmentManager(),"datePicker");
                             }
                         })
                 .setNegativeButton("Cancel",
@@ -501,10 +606,8 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                 .setPositiveButton("Save",
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog,int id) {
-                                // get user input and set it to result
-                                // edit text
-//                                    result.setText(userInput.getText());
-                                showDatePickerDialog(promptsView);
+                                android.app.DialogFragment picker = new DatePickerFragment();
+                                picker.show((MainActivity.this).getFragmentManager(),"datePicker");
                             }
                         })
                 .setNegativeButton("Cancel",
@@ -712,66 +815,5 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         // show it
         alertDialog.show();
     }
-    public void showDatePickerDialog(View v) {
-        DialogFragment newFragment = new DatePickerFragment();
-        newFragment.show(getSupportFragmentManager(), "datePicker");
-    }
 
-    /**
-     * This callback method, call DatePickerFragment class,
-     * DatePickerFragment class returns calendar view.
-     * @param view
-     */
-    public void datePicker(View view){
-
-        DatePickerFragment fragment = new DatePickerFragment();
-        //fragment.show(getSupportFragmentManager());
-    }
-
-    /**
-     * To set date on TextView
-     * @param calendar
-     */
-    private void setDate(final Calendar calendar) {
-        final DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.MEDIUM);
-
-        dobVal = String.valueOf(dateFormat.format(calendar.getTime()));
-
-        addtoArray();
-        writeToFile();
-        loadFromFile();
-    }
-
-    /**
-     * To receive a callback when the user sets the date.
-     * @param view
-     * @param year
-     * @param month
-     * @param day
-     */
-    @Override
-    public void onDateSet(DatePicker view, int year, int month, int day) {
-        Calendar cal = new GregorianCalendar(year, month, day);
-        setDate(cal);
-    }
-
-    /**
-     * Create a DatePickerFragment class that extends DialogFragment.
-     * Define the onCreateDialog() method to return an instance of DatePickerDialog
-     */
-    public static class DatePickerFragment extends DialogFragment {
-
-        @Override
-        public Dialog onCreateDialog(Bundle savedInstanceState) {
-            final Calendar c = Calendar.getInstance();
-            int year = c.get(Calendar.YEAR);
-            int month = c.get(Calendar.MONTH);
-            int day = c.get(Calendar.DAY_OF_MONTH);
-
-
-            return new DatePickerDialog(getActivity(),
-                    (DatePickerDialog.OnDateSetListener)
-                            getActivity(), year, month, day);
-        }
-    }
 }
