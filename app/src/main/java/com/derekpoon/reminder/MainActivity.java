@@ -70,6 +70,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerFragmen
     private int dayRemainInt = 0, age, listPos = 0;
     private TextView mName, mDob, mAge, mZodiac;
     private ArrayList<String> mZodiacList;
+    private boolean editExisting = false;
 
     public void onComplete(String selectedDate) {
         // After the dialog fragment completes, it calls this callback.
@@ -78,11 +79,20 @@ public class MainActivity extends AppCompatActivity implements DatePickerFragmen
         //update original DOB value
         dobVal = selectedDate;
 
-        addtoArray();
-        writeToFile();
-        loadFromFile();
+        if (editExisting) {
+            updateExisting();
+            writeToFile();
+            loadFromFile();
+        } else {
+            addtoArray();
+            writeToFile();
+            loadFromFile();
+        }
     }
 
+    public void updateExisting() {
+        itemList.get(listPos).setDob(dobVal);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -541,6 +551,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerFragmen
     }
 
     public void editChangeName() {
+        editExisting = true;
         // get prompts.xml view
         LayoutInflater li = LayoutInflater.from(context);
         final View promptsView = li.inflate(R.layout.prompts_edit_name, null);
@@ -561,6 +572,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerFragmen
                 .setPositiveButton("Save",
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog,int id) {
+                                itemList.get(listPos).setName(userInput.getText().toString());
                                 android.app.DialogFragment picker = new DatePickerFragment();
                                 Bundle bundle = new Bundle();
                                 bundle.putString("DOB", itemList.get(listPos).getDob());
@@ -587,6 +599,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerFragmen
     }
 
     public void addName() {
+        editExisting = false;
         // get prompts.xml view
         LayoutInflater li = LayoutInflater.from(context);
         final View promptsView = li.inflate(R.layout.prompts_name, null);
