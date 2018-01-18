@@ -7,7 +7,14 @@
         android:title="@string/add_new"
         app:showAsAction="ifRoom|withText"/>
 
-    <item android:id="@+id/action_settings"
+    <item
+        android:id="@+id/action_order"
+        android:title="@string/action_order"
+        android:orderInCategory="100"
+        app:showAsAction="never"/>
+
+    <item
+        android:id="@+id/action_settings"
         android:title="@string/action_settings"
         android:orderInCategory="100"
         app:showAsAction="never"/>

@@ -1,41 +1,34 @@
 package com.derekpoon.reminder;
 
-import android.app.DatePickerDialog;
-import android.app.Dialog;
 import android.content.DialogInterface;
 import android.Manifest;
 import android.content.Context;
-import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.provider.CalendarContract;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.ShareActionProvider;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
-import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import org.w3c.dom.Text;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -43,16 +36,13 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.Year;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.GregorianCalendar;
 
 public class MainActivity extends AppCompatActivity implements DatePickerFragment.OnCompleteListener {
 
@@ -71,6 +61,9 @@ public class MainActivity extends AppCompatActivity implements DatePickerFragmen
     private TextView mName, mDob, mAge, mZodiac;
     private ArrayList<String> mZodiacList;
     private boolean editExisting = false;
+    RadioButton radioDaysLeft;
+    RadioButton radioAge;
+    private int sortedBy = 0;
 
     public void onComplete(String selectedDate) {
         // After the dialog fragment completes, it calls this callback.
@@ -93,6 +86,51 @@ public class MainActivity extends AppCompatActivity implements DatePickerFragmen
     public void updateExisting() {
         itemList.get(listPos).setDob(dobVal);
     }
+
+    public void sortDaysLeft() {
+        sortedBy = 0;
+        CompareDaysLeft compdaysremain = new CompareDaysLeft();
+        Collections.sort(itemList, compdaysremain);
+        itemArrayAdapter.notifyDataSetChanged();
+    }
+
+    public void sortName() {
+        sortedBy = 1;
+        Collections.sort(itemList, new Comparator<Item>(){
+            public int compare(Item i1, Item i2) {
+                // ## Ascending order
+                return i1.getName().compareToIgnoreCase(i2.getName()); // To compare string values
+                // return Integer.valueOf(obj1.empId).compareTo(obj2.empId); // To compare integer values
+
+                // ## Descending order
+                // return obj2.firstName.compareToIgnoreCase(obj1.firstName); // To compare string values
+                // return Integer.valueOf(obj2.empId).compareTo(obj1.empId); // To compare integer values
+            }
+        });
+        itemArrayAdapter.notifyDataSetChanged();
+    }
+
+    public void sortAge() {
+        sortedBy = 2;
+        Collections.sort(itemList, new Comparator<Item>(){
+            public int compare(Item i1, Item i2) {
+                // ## Ascending order
+//                return i1.getName().compareToIgnoreCase(i2.getName()); // To compare string values
+                return Integer.valueOf(i1.getAge()).compareTo(i2.getAge()); // To compare integer values
+
+                // ## Descending order
+                // return obj2.firstName.compareToIgnoreCase(obj1.firstName); // To compare string values
+                // return Integer.valueOf(obj2.empId).compareTo(obj1.empId); // To compare integer values
+            }
+        });
+        itemArrayAdapter.notifyDataSetChanged();
+    }
+
+//    class NameCompare implements Comparator<Item> {
+//        public int compare(Item one, Item two) {
+//            return one.getName().compareTo(two.getName());
+//        }
+//    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -120,6 +158,9 @@ public class MainActivity extends AppCompatActivity implements DatePickerFragmen
         mZodiacList.add("Scorpio");
         mZodiacList.add("Sagittarius");
         mZodiacList.add("Capricorn");
+
+        radioDaysLeft = (RadioButton)findViewById(R.id.rd_days_left);
+        radioAge = (RadioButton)findViewById(R.id.rd_age);
 
         itemArrayAdapter = new ItemArrayAdapter(R.layout.card_item_temp, itemList);
         rv = (RecyclerView)findViewById(R.id.recycler_view);
@@ -223,6 +264,10 @@ public class MainActivity extends AppCompatActivity implements DatePickerFragmen
                 //Code to run when the Add button is clicked
                 addName();
                 return true;
+            case R.id.action_order:
+                //re order entries dialog
+                displayOrderDialog();
+                return true;
             case R.id.action_settings:
                 displayDeleteDataAlert();
                 return true;
@@ -233,7 +278,6 @@ public class MainActivity extends AppCompatActivity implements DatePickerFragmen
 
     public void checkStarSign() {
 
-        Calendar today = Calendar.getInstance();
         SimpleDateFormat sdf = new SimpleDateFormat("dd MMM yyyy");
         Date date = null;
         Calendar birthday = Calendar.getInstance();
@@ -299,7 +343,6 @@ public class MainActivity extends AppCompatActivity implements DatePickerFragmen
                 mZodiacSign = mZodiacList.get(11);
                 break;
         }
-
     }
 
     class CompareDaysLeft implements Comparator<Item> {
@@ -311,6 +354,17 @@ public class MainActivity extends AppCompatActivity implements DatePickerFragmen
             return d1 - d2;
         }
     }
+
+    class CompareAge implements Comparator<Item> {
+        public int compare(Item age1, Item age2) {
+
+            int a1 = age1.getAge();
+            int a2 = age2.getAge();
+
+            return a1 - a2;
+        }
+    }
+
 
     public void updateDaysLeft() {
 
@@ -495,6 +549,66 @@ public class MainActivity extends AppCompatActivity implements DatePickerFragmen
         itemArrayAdapter.notifyDataSetChanged();
         introText.setVisibility(View.VISIBLE);
         writeToFile();
+    }
+
+    public void displayOrderDialog() {
+
+        RadioGroup rg = (RadioGroup)findViewById(R.id.sortRadioGroup);
+
+//        LayoutInflater li = LayoutInflater.from(context);
+//        final View promptsView = li.inflate(R.layout.prompts_sort_list, null);
+
+        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
+                context);
+
+        // set prompts.xml to alertdialog builder
+//        alertDialogBuilder.setView(promptsView);
+
+        final CharSequence[] items = { "Days left", "Name", "Age" };
+
+        alertDialogBuilder.setTitle("Sort list by: ");
+        alertDialogBuilder.setSingleChoiceItems(items, sortedBy,
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int item) {
+
+                        switch (item) {
+                            case 0:
+                                sortDaysLeft();
+                                break;
+                            case 1:
+                                sortName();
+                                break;
+                            case 2:
+                                sortAge();
+                                break;
+                        }
+                        Toast.makeText(getApplicationContext(), items[item],
+                                Toast.LENGTH_SHORT).show();
+                        dialog.dismiss();
+                    }
+                });
+
+        // set dialog message
+        alertDialogBuilder
+                .setCancelable(false)
+                .setPositiveButton("Cancel",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                dialog.cancel();
+                            }
+                        });
+//                .setNegativeButton("Edit entry",
+//                        new DialogInterface.OnClickListener() {
+//                            public void onClick(DialogInterface dialog,int id) {
+//
+//                            }
+//                        });
+
+        // create alert dialog
+        AlertDialog alertDialog = alertDialogBuilder.create();
+
+        // show it
+        alertDialog.show();
     }
 
     public void displayEntry(int position) {
