@@ -231,7 +231,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerFragmen
             updateDaysLeft();
 //            Log.d("LIST AFTER", itemList.toString());
 ////            System.out.println("Before sort: " + itemList);
-            Collections.sort(itemList);
+//            Collections.sort(itemList);
 ////            System.out.println("After sort: " + itemList);
 //            CompareDaysLeft compdaysremain = new CompareDaysLeft();
 //            Collections.sort(itemList, compdaysremain);
