@@ -6,12 +6,19 @@
     android:orientation="vertical"
     android:padding="10dp" >
 
+    <ImageView
+        android:id="@+id/id_profile"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/default_profile"
+        android:tooltipText="Change profile image"/>
+
     <TextView
         android:id="@+id/textAdd"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textSize="30sp"
-        android:text="Add" />
+        android:text="Add a new entry" />
 
     <EditText
         android:id="@+id/editTextName"

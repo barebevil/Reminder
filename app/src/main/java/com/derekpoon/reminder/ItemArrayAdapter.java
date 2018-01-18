@@ -68,7 +68,8 @@ public class ItemArrayAdapter extends RecyclerView.Adapter<ItemArrayAdapter.View
         TextView daysLeft = holder.daysLeft;
         TextView daysLeftText = holder.daysLeftText;
         TextView age = holder.age;
-        profile.setImageResource(R.drawable.default_profile);
+//        profile.setImageResource(R.drawable.default_profile);
+        profile.setImageResource(itemList.get(listPosition).getProfile());
         item.setText(itemList.get(listPosition).getName());
         dob.setText(itemList.get(listPosition).getDob().toString());
 

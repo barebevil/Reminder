@@ -26,6 +26,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -63,11 +64,12 @@ public class MainActivity extends AppCompatActivity implements DatePickerFragmen
     private String infilename = "internalfile";
     private File myInternalFile;
     private String dobVal, dayRemain, mZodiacSign;
-    private int dayRemainInt = 0, age, listPos = 0;
+    private int dayRemainInt = 0, age, listPos = 0, default_profile_pic;
     private TextView mName, mDob, mAge, mZodiac;
     private boolean editExisting = false;
     private int sortedBy = 0;
     private Button mButtonGreeting;
+    ImageView imageView;
 
     final CharSequence[] greetings = { "Happy birthday! May all your dreams come true.", "Best wishes on your birthday!", "Hope you have a fantastic birthday!", "Happy birthday! Enjoy the cake!" };
     int pickedGreeting = 0;
@@ -847,6 +849,17 @@ public class MainActivity extends AppCompatActivity implements DatePickerFragmen
         // set prompts.xml to alertdialog builder
         alertDialogBuilder.setView(promptsView);
 
+        default_profile_pic = R.drawable.default_profile;
+
+        imageView = (ImageView)promptsView.findViewById(R.id.id_profile);
+        imageView.setImageResource(default_profile_pic);
+        imageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                displayProfileSelect();
+            }
+        });
+
         userInput = (EditText) promptsView
                 .findViewById(R.id.editTextName);
 
@@ -869,6 +882,65 @@ public class MainActivity extends AppCompatActivity implements DatePickerFragmen
 
         // create alert dialog
         AlertDialog alertDialog = alertDialogBuilder.create();
+
+        //show keyboard
+        alertDialog.getWindow().setSoftInputMode(
+                WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+
+        // show it
+        alertDialog.show();
+    }
+
+    public void displayProfileSelect() {
+        LayoutInflater li = LayoutInflater.from(context);
+        final View promptsView = li.inflate(R.layout.prompts_profile_image, null);
+
+        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
+                context);
+
+        // set prompts.xml to alertdialog builder
+        alertDialogBuilder.setView(promptsView);
+        alertDialogBuilder.setTitle("Pick a profile image");
+
+        // set dialog message
+        alertDialogBuilder
+                .setCancelable(false)
+//                .setPositiveButton("Save",
+//                        new DialogInterface.OnClickListener() {
+//                            public void onClick(DialogInterface dialog,int id) {
+//
+//                            }
+//                        })
+                .setNegativeButton("Cancel",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog,int id) {
+                                dialog.cancel();
+                            }
+                        });
+
+        // create alert dialog
+        final AlertDialog alertDialog = alertDialogBuilder.create();
+
+        ImageView pic1 = (ImageView)promptsView.findViewById(R.id.id_image_1);
+        pic1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                default_profile_pic = R.drawable.default_profile;
+                imageView.setImageResource(default_profile_pic);
+                alertDialog.dismiss();
+            }
+        });
+
+        ImageView pic2 = (ImageView)promptsView.findViewById(R.id.id_image_2);
+        pic2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                default_profile_pic = R.drawable.profile_female;
+                imageView.setImageResource(default_profile_pic);
+                alertDialog.dismiss();
+            }
+        });
+
 
         //show keyboard
         alertDialog.getWindow().setSoftInputMode(
@@ -982,7 +1054,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerFragmen
 
             System.out.print("Next birthday is in " + diffDays + " days");
         }
-        itemList.add(new Item(R.drawable.default_profile, userInput.getText().toString(), dobVal, dayRemainInt, age));
+        itemList.add(new Item(default_profile_pic, userInput.getText().toString(), dobVal, dayRemainInt, age));
         System.out.println("Before sort: " + itemList);
         Collections.sort(itemList);
         System.out.println("After sort: " + itemList);
