@@ -125,12 +125,6 @@ public class MainActivity extends AppCompatActivity implements DatePickerFragmen
         itemArrayAdapter.notifyDataSetChanged();
     }
 
-//    class NameCompare implements Comparator<Item> {
-//        public int compare(Item one, Item two) {
-//            return one.getName().compareTo(two.getName());
-//        }
-//    }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -387,17 +381,6 @@ public class MainActivity extends AppCompatActivity implements DatePickerFragmen
             return d1 - d2;
         }
     }
-
-    class CompareAge implements Comparator<Item> {
-        public int compare(Item age1, Item age2) {
-
-            int a1 = age1.getAge();
-            int a2 = age2.getAge();
-
-            return a1 - a2;
-        }
-    }
-
 
     public void updateDaysLeft() {
 
