@@ -3,6 +3,7 @@ package com.derekpoon.reminder;
 import android.content.DialogInterface;
 import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
@@ -65,9 +66,11 @@ public class MainActivity extends AppCompatActivity implements DatePickerFragmen
     private int dayRemainInt = 0, age, listPos = 0;
     private TextView mName, mDob, mAge, mZodiac;
     private boolean editExisting = false;
-    RadioButton radioDaysLeft;
-    RadioButton radioAge;
     private int sortedBy = 0;
+    private Button mButtonGreeting;
+
+    final CharSequence[] greetings = { "Happy birthday! May all your dreams come true.", "Best wishes on your birthday!", "Hope you have a fantastic birthday!", "Happy birthday! Enjoy the cake!" };
+    int pickedGreeting = 0;
 
     public void onComplete(String selectedDate) {
         // After the dialog fragment completes, it calls this callback.
@@ -146,8 +149,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerFragmen
         itemList = new ArrayList<Item>();
         itemArray2 = new ArrayList<Item>();
 
-        radioDaysLeft = (RadioButton)findViewById(R.id.rd_days_left);
-        radioAge = (RadioButton)findViewById(R.id.rd_age);
+
 
         itemArrayAdapter = new ItemArrayAdapter(R.layout.card_item_temp, itemList);
         rv = (RecyclerView)findViewById(R.id.recycler_view);
@@ -226,10 +228,10 @@ public class MainActivity extends AppCompatActivity implements DatePickerFragmen
                 sortAge();
             }
 //            Log.d("LIST BEFORE", itemList.toString());
-//            updateDaysLeft();
+            updateDaysLeft();
 //            Log.d("LIST AFTER", itemList.toString());
 ////            System.out.println("Before sort: " + itemList);
-//            Collections.sort(itemList);
+            Collections.sort(itemList);
 ////            System.out.println("After sort: " + itemList);
 //            CompareDaysLeft compdaysremain = new CompareDaysLeft();
 //            Collections.sort(itemList, compdaysremain);
@@ -586,9 +588,87 @@ public class MainActivity extends AppCompatActivity implements DatePickerFragmen
         writeToFile();
     }
 
-    public void displayOrderDialog() {
+    public void displayGreetingDialog() {
 
-        RadioGroup rg = (RadioGroup)findViewById(R.id.sortRadioGroup);
+        //        LayoutInflater li = LayoutInflater.from(context);
+//        final View promptsView = li.inflate(R.layout.prompts_sort_list, null);
+
+        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
+                context);
+
+        // set prompts.xml to alertdialog builder
+//        alertDialogBuilder.setView(promptsView);
+
+//        final CharSequence[] greetings = { "Happy birthday! May all your dreams come true.", "Best wishes on your birthday!", "Hope you have a fantastic birthday!", "Happy birthday! Enjoy the cake!" };
+
+        alertDialogBuilder.setTitle("Choose a greeting: ");
+        alertDialogBuilder.setSingleChoiceItems(greetings, pickedGreeting,
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int item) {
+
+                        switch (item) {
+                            case 0:
+                                pickedGreeting = 0;
+                                break;
+                            case 1:
+                                pickedGreeting = 1;
+                                break;
+                            case 2:
+                                pickedGreeting = 2;
+                                break;
+                            case 3:
+                                pickedGreeting = 3;
+                                break;
+                        }
+                        Toast.makeText(getApplicationContext(), greetings[item],
+                                Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+        // set dialog message
+        alertDialogBuilder
+                .setCancelable(false)
+                .setPositiveButton("Cancel",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                dialog.cancel();
+                            }
+                        })
+                .setNegativeButton("Share",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog,int id) {
+                                //share via explicit intent
+                                dialog.dismiss();
+                                shareGreeting(pickedGreeting);
+                            }
+                        });
+
+        // create alert dialog
+        AlertDialog alertDialog = alertDialogBuilder.create();
+
+        // show it
+        alertDialog.show();
+
+    }
+
+    public void shareGreeting(int greetingNum) {
+        //creates an intent that uses a SEND ACTION
+        //this is an IMPLICIT intent
+        Intent intent = new Intent(Intent.ACTION_SEND);
+        intent.setType("text/plain");
+
+        //add messageText to the intent
+        intent.putExtra(Intent.EXTRA_TEXT, greetings[pickedGreeting]);
+
+        //this starts the activity specified in the intent
+//        startActivity(intent);
+
+        Intent chosenIntent = Intent.createChooser(intent, "Send message...");
+        startActivity(chosenIntent);
+
+    }
+
+    public void displayOrderDialog() {
 
 //        LayoutInflater li = LayoutInflater.from(context);
 //        final View promptsView = li.inflate(R.layout.prompts_sort_list, null);
@@ -655,7 +735,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerFragmen
 
         checkStarSign();
 
-        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
+        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
                 context);
 
         // set prompts.xml to alertdialog builder
@@ -670,6 +750,14 @@ public class MainActivity extends AppCompatActivity implements DatePickerFragmen
         mAge.setText(String.valueOf(itemList.get(position).getAge() - 1));
         mZodiac = (TextView) promptsView.findViewById(R.id.zodiac_sign);
         mZodiac.setText(mZodiacSign);
+
+        mButtonGreeting = (Button)promptsView.findViewById(R.id.send_greeting);
+        mButtonGreeting.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                displayGreetingDialog();
+            }
+        });
 
         // set dialog message
         alertDialogBuilder
