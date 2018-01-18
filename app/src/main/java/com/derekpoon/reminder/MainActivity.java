@@ -59,7 +59,6 @@ public class MainActivity extends AppCompatActivity implements DatePickerFragmen
     private String dobVal, dayRemain, mZodiacSign;
     private int dayRemainInt = 0, age, listPos = 0;
     private TextView mName, mDob, mAge, mZodiac;
-    private ArrayList<String> mZodiacList;
     private boolean editExisting = false;
     RadioButton radioDaysLeft;
     RadioButton radioAge;
@@ -144,20 +143,6 @@ public class MainActivity extends AppCompatActivity implements DatePickerFragmen
         //initialize the arraylist of items
         itemList = new ArrayList<Item>();
         itemArray2 = new ArrayList<Item>();
-        mZodiacList = new ArrayList<String>();
-
-        mZodiacList.add("Aquarius");
-        mZodiacList.add("Pisces");
-        mZodiacList.add("Aries");
-        mZodiacList.add("Taurus");
-        mZodiacList.add("Gemini");
-        mZodiacList.add("Cancer");
-        mZodiacList.add("Leo");
-        mZodiacList.add("Virgo");
-        mZodiacList.add("Libra");
-        mZodiacList.add("Scorpio");
-        mZodiacList.add("Sagittarius");
-        mZodiacList.add("Capricorn");
 
         radioDaysLeft = (RadioButton)findViewById(R.id.rd_days_left);
         radioAge = (RadioButton)findViewById(R.id.rd_age);
@@ -294,53 +279,101 @@ public class MainActivity extends AppCompatActivity implements DatePickerFragmen
         int day = birthday.get(Calendar.DAY_OF_MONTH);
 
         switch (month) {
+            case 0:
+                if (day < 20) {
+                    mZodiacSign = "Capricorn";
+                }
+                if (day > 19) {
+                    mZodiacSign = "Aquarius";
+                }
+                break;
             case 1:
-                if (day < 20);
-                mZodiacSign = mZodiacList.get(0);
+                if (day < 19) {
+                    mZodiacSign = "Aquarius";
+                }
+                if (day > 18) {
+                    mZodiacSign = "Pisces";
+                }
                 break;
             case 2:
-                if (day < 18);
-                mZodiacSign = mZodiacList.get(1);
+                if (day < 21) {
+                    mZodiacSign = "Pisces";
+                }
+                if (day > 20) {
+                    mZodiacSign = "Aries";
+                }
                 break;
             case 3:
-                if (day < 21);
-                mZodiacSign = mZodiacList.get(2);
+                if (day < 20) {
+                    mZodiacSign = "Aries";
+                }
+                if (day > 19) {
+                    mZodiacSign = "Taurus";
+                }
                 break;
             case 4:
-                if (day < 20);
-                mZodiacSign = mZodiacList.get(3);
+                if (day < 21) {
+                    mZodiacSign = "Taurus";
+                }
+                if (day > 20) {
+                    mZodiacSign = "Gemini";
+                }
                 break;
             case 5:
-                if (day < 21);
-                mZodiacSign = mZodiacList.get(4);
+                if (day < 21) {
+                    mZodiacSign = "Gemini";
+                }
+                if (day > 20) {
+                    mZodiacSign = "Cancer";
+                }
                 break;
             case 6:
-                if (day < 21);
-                mZodiacSign = mZodiacList.get(5);
+                if (day < 23) {
+                    mZodiacSign = "Cancer";
+                }
+                if (day > 22) {
+                    mZodiacSign = "Leo";
+                }
                 break;
             case 7:
-                if (day < 23);
-                mZodiacSign = mZodiacList.get(6);
+                if (day < 23) {
+                    mZodiacSign = "Leo";
+                }
+                if (day > 22) {
+                    mZodiacSign = "Virgo";
+                }
                 break;
             case 8:
-                if (day < 23);
-                mZodiacSign = mZodiacList.get(7);
+                if (day < 23) {
+                    mZodiacSign = "Virgo";
+                }
+                if (day > 22) {
+                    mZodiacSign = "Libra";
+                }
                 break;
             case 9:
-                if (day < 23);
-                mZodiacSign = mZodiacList.get(8);
+                if (day < 23) {
+                    mZodiacSign = "Libra";
+                }
+                if (day > 22) {
+                    mZodiacSign = "Scorpio";
+                }
                 break;
             case 10:
-                if (day < 23);
-                mZodiacSign = mZodiacList.get(9);
+                if (day < 22) {
+                    mZodiacSign = "Scorpio";
+                }
+                if (day > 21) {
+                    mZodiacSign = "Sagittarius";
+                }
                 break;
             case 11:
-                if (day < 22);
-                mZodiacSign = mZodiacList.get(10);
-                break;
-            case 12:
-                if (day < 22);
-                mZodiacSign = mZodiacList.get(11);
+                if (day < 22) {
+                    mZodiacSign = "Sagittarius";
+                }
+                if (day > 21) {
+                    mZodiacSign = "Capricorn";
+                }
                 break;
         }
     }
@@ -875,6 +908,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerFragmen
             FileOutputStream fos = context.openFileOutput(infilename, Context.MODE_PRIVATE);
             ObjectOutputStream os = new ObjectOutputStream(fos);
             os.writeObject(itemList);
+//            os.write(sortedBy);
             os.close();
             fos.close();
             Toast.makeText(MainActivity.this,"Save successful", Toast.LENGTH_SHORT).show();
