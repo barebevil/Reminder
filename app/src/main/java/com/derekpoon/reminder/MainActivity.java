@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.media.MediaScannerConnection;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
@@ -30,9 +31,13 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -91,6 +96,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerFragmen
         CompareDaysLeft compdaysremain = new CompareDaysLeft();
         Collections.sort(itemList, compdaysremain);
         itemArrayAdapter.notifyDataSetChanged();
+        savePref();
     }
 
     public void sortName() {
@@ -107,6 +113,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerFragmen
             }
         });
         itemArrayAdapter.notifyDataSetChanged();
+        savePref();
     }
 
     public void sortAge() {
@@ -123,6 +130,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerFragmen
             }
         });
         itemArrayAdapter.notifyDataSetChanged();
+        savePref();
     }
 
     @Override
@@ -206,14 +214,25 @@ public class MainActivity extends AppCompatActivity implements DatePickerFragmen
         } else {
             loadFromFile();
             updateArray();
-            Log.d("LIST BEFORE", itemList.toString());
-            updateDaysLeft();
-            Log.d("LIST AFTER", itemList.toString());
-//            System.out.println("Before sort: " + itemList);
-            Collections.sort(itemList);
-//            System.out.println("After sort: " + itemList);
-            CompareDaysLeft compdaysremain = new CompareDaysLeft();
-            Collections.sort(itemList, compdaysremain);
+            loadPref();
+
+            if (sortedBy == 0) {
+                sortDaysLeft();
+            }
+            if (sortedBy == 1) {
+                sortName();
+            }
+            if (sortedBy == 2) {
+                sortAge();
+            }
+//            Log.d("LIST BEFORE", itemList.toString());
+//            updateDaysLeft();
+//            Log.d("LIST AFTER", itemList.toString());
+////            System.out.println("Before sort: " + itemList);
+//            Collections.sort(itemList);
+////            System.out.println("After sort: " + itemList);
+//            CompareDaysLeft compdaysremain = new CompareDaysLeft();
+//            Collections.sort(itemList, compdaysremain);
             itemArrayAdapter.notifyDataSetChanged();
         }
 
@@ -891,7 +910,6 @@ public class MainActivity extends AppCompatActivity implements DatePickerFragmen
             FileOutputStream fos = context.openFileOutput(infilename, Context.MODE_PRIVATE);
             ObjectOutputStream os = new ObjectOutputStream(fos);
             os.writeObject(itemList);
-//            os.write(sortedBy);
             os.close();
             fos.close();
             Toast.makeText(MainActivity.this,"Save successful", Toast.LENGTH_SHORT).show();
@@ -919,6 +937,74 @@ public class MainActivity extends AppCompatActivity implements DatePickerFragmen
                 ex.printStackTrace();
             }
         }
+    }
+
+    public void savePref() {
+        try {
+            // Creates a file in the primary external storage space of the
+            // current application.
+            // If the file does not exists, it is created.
+            File testFile = new File(this.getExternalFilesDir(null), "prefs.txt");
+            testFile.delete();
+            if (!testFile.exists())
+                testFile.createNewFile();
+
+            // Adds a line to the file
+            BufferedWriter writer = new BufferedWriter(new FileWriter(testFile, true /*append*/));
+
+            String temp = String.valueOf(sortedBy);
+            writer.write(temp);
+
+            //            writer.write(userInput.getText().toString() + "\n");
+            writer.close();
+            // Refresh the data so it can seen when the device is plugged in a
+            // computer. You may have to unplug and replug the device to see the
+            // latest changes. This is not necessary if the user should not modify
+            // the files.
+            MediaScannerConnection.scanFile(this,
+                    new String[]{testFile.toString()},
+                    null,
+                    null);
+            Toast.makeText(MainActivity.this,"Save successful", Toast.LENGTH_SHORT).show();
+
+        } catch (IOException e) {
+            Log.e("ReadWriteFile", "Unable to write to the prefs.txt file.");
+            Toast.makeText(MainActivity.this,"Save failed", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    public void loadPref() {
+        String textFromFile = "";
+
+        // Gets the file from the primary external storage space of the
+        // current application.
+        File testFile = new File(this.getExternalFilesDir(null), "prefs.txt");
+
+        if (testFile != null) {
+            StringBuilder stringBuilder = new StringBuilder();
+            // Reads the data from the file
+            BufferedReader reader = null;
+            try {
+                reader = new BufferedReader(new FileReader(testFile));
+                String line;
+
+                while ((line = reader.readLine()) != null) {
+                    textFromFile += line.toString();
+//                    textFromFile += "\n";
+                }
+                reader.close();
+                Toast.makeText(MainActivity.this,"Load successful", Toast.LENGTH_SHORT).show();
+            } catch (Exception e) {
+                Log.e("ReadWriteFile", "Unable to read the TestFile.txt file.");
+                Toast.makeText(MainActivity.this,"Load failed. File does not exist.", Toast.LENGTH_SHORT).show();
+            }
+        }
+
+        System.out.println("");
+        System.out.println("SORT PREFERENCE VALUE: " + textFromFile);
+        System.out.println("");
+
+        sortedBy = Integer.parseInt(textFromFile);
     }
 
     public void updateArray() {
